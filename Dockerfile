@@ -16,7 +16,8 @@ RUN apk update && apk add --no-cache --update ca-certificates openssl iproute2 d
     && update-ca-certificates \
     && wget https://github.com/concourse/concourse/releases/download/v${CONCOURSE_VER}/concourse_linux_amd64 \
         -O /usr/local/bin/concourse -q \
-    && chmod +x /usr/local/bin/concourse
+    && chmod +x /usr/local/bin/concourse \
+    && mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
 
 # volume containing keys to use
 VOLUME /concourse-keys
