@@ -11,7 +11,7 @@ services:
     restart: on-failure:20
 
   concourse-web:
-    image: node3030/concourse
+    image: node3030/concourse:2.7.0
     container_name: concourse-web
     links: [concourse-db]
     command: web
@@ -27,7 +27,7 @@ services:
     restart: on-failure:20
 
   concourse-worker:
-    image: node3030/concourse
+    image: node3030/concourse:2.7.0
     container_name: concourse-worker
     links: [concourse-web]
     command: worker
