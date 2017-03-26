@@ -12,9 +12,10 @@ ENV ENTRYKIT_VER=0.4.0 \
     \
     CONCOURSE_WORK_DIR=/worker-state
 
-ADD https://github.com/concourse/concourse/releases/download/v${CONCOURSE_VER}/concourse_linux_amd64 \
-        /usr/local/bin/concourse
-RUN apk update && apk add --no-cache ca-certificates iproute2 dumb-init \
+RUN apk update && apk add --no-cache --update ca-certificates openssl iproute2 dumb-init \
+    && update-ca-certificates \
+    && wget https://github.com/concourse/concourse/releases/download/v${CONCOURSE_VER}/concourse_linux_amd64 \
+        -O /usr/local/bin/concourse -q \
     && chmod +x /usr/local/bin/concourse
 
 # volume containing keys to use
