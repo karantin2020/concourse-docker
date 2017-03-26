@@ -1,5 +1,5 @@
 concourse-db:
-  image: postgres:9.5
+  image: postgres:9.6.2-alpine
   environment:
     POSTGRES_DB: concourse
     POSTGRES_PASSWORD: concourse_pass
@@ -7,10 +7,10 @@ concourse-db:
     PGDATA: /database
 
 concourse-web:
-  image: concourse/concourse
+  image: node3030/concourse
   links: [concourse-db]
   command: web
-  ports: ["8080:8080"]
+  ports: ["127.0.0.1:9090:8080"]
   volumes: ["./keys/web:/concourse-keys"]
   environment:
     CONCOURSE_BASIC_AUTH_USERNAME: "${CONCOURSE_LOGIN}"
@@ -19,8 +19,7 @@ concourse-web:
     CONCOURSE_POSTGRES_DATA_SOURCE: "postgres://concourse_user:concourse_pass@concourse-db:5432/concourse?sslmode=disable"
 
 concourse-worker:
-  image: concourse/concourse
-  privileged: true
+  image: node3030/concourse
   links: [concourse-web]
   command: worker
   volumes: ["./keys/worker:/concourse-keys"]
