@@ -1,35 +1,40 @@
-concourse-db:
-  image: postgres:9.6.2-alpine
-  environment:
-    POSTGRES_DB: concourse
-    POSTGRES_PASSWORD: concourse_pass
-    POSTGRES_USER: concourse_user
-    PGDATA: /database
-  restart: on-failure:20
+version: '2'
+services:
+  concourse-db:
+    image: postgres:9.6.2-alpine
+    container_name: concourse-db
+    environment:
+      POSTGRES_DB: concourse
+      POSTGRES_PASSWORD: concourse_pass
+      POSTGRES_USER: concourse_user
+      PGDATA: /database
+    restart: on-failure:20
 
-concourse-web:
-  image: node3030/concourse
-  links: [concourse-db]
-  command: web
-  ports: ["127.0.0.1:9090:8080"]
-  volumes: ["./keys/web:/concourse-keys"]
-  environment:
-    CONCOURSE_BASIC_AUTH_USERNAME: "${CONCOURSE_LOGIN}"
-    CONCOURSE_BASIC_AUTH_PASSWORD: "${CONCOURSE_PASSWORD}"
-    CONCOURSE_EXTERNAL_URL: "${CONCOURSE_EXTERNAL_URL}"
-    CONCOURSE_POSTGRES_DATA_SOURCE: "postgres://concourse_user:concourse_pass@concourse-db:5432/concourse?sslmode=disable"
-  depends_on:
-    - concourse-db
-  restart: on-failure:20
+  concourse-web:
+    image: node3030/concourse
+    container_name: concourse-web
+    links: [concourse-db]
+    command: web
+    ports: ["127.0.0.1:9090:8080"]
+    volumes: ["./keys/web:/concourse-keys"]
+    environment:
+      CONCOURSE_BASIC_AUTH_USERNAME: "${CONCOURSE_LOGIN}"
+      CONCOURSE_BASIC_AUTH_PASSWORD: "${CONCOURSE_PASSWORD}"
+      CONCOURSE_EXTERNAL_URL: "${CONCOURSE_EXTERNAL_URL}"
+      CONCOURSE_POSTGRES_DATA_SOURCE: "postgres://concourse_user:concourse_pass@concourse-db:5432/concourse?sslmode=disable"
+    depends_on:
+      - concourse-db
+    restart: on-failure:20
 
-concourse-worker:
-  image: node3030/concourse
-  links: [concourse-web]
-  command: worker
-  volumes: ["./keys/worker:/concourse-keys"]
-  environment:
-    CONCOURSE_TSA_HOST: concourse-web
-  depends_on:
-    - concourse-db
-    - concourse-web
-  restart: on-failure:20
+  concourse-worker:
+    image: node3030/concourse
+    container_name: concourse-worker
+    links: [concourse-web]
+    command: worker
+    volumes: ["./keys/worker:/concourse-keys"]
+    environment:
+      CONCOURSE_TSA_HOST: concourse-web
+    depends_on:
+      - concourse-db
+      - concourse-web
+    restart: on-failure:20
